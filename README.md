@@ -29,6 +29,26 @@ pip install -e .
 
 ## 使用方法
 
+### VS Code での設定例
+
+VS Code の settings.json で設定する例：
+
+```json
+"mcp": {
+  "servers": {
+    "edge-tts": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\Users\\__username__\\src\\edge_tts_mcp_server\\src\\edge_tts_mcp_server",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
+```
+
 ### MCP Inspector での使用
 
 標準的な MCP サーバーとして実行：
@@ -37,36 +57,18 @@ pip install -e .
 mcp dev server.py
 ```
 
-または、コマンドラインツールとして実行：
-
-```bash
-edge-tts-mcp --standard
-```
-
 ### uvx（uvicorn）での実行
 
-FastAPI ベースのサーバーとして uvx で実行する場合：
+FastAPI ベースのサーバーとして uv で実行する場合：
 
 ```bash
-uvx edge_tts_mcp_server.server:get_app
-```
-
-または、コマンドラインツールを使用：
-
-```bash
-edge-tts-mcp
+uv --directory path/to/edge_tts_mcp_server/src/edge_tts_mcp_server run server.py
 ```
 
 コマンドラインオプション：
 
 ```bash
 edge-tts-mcp --host 0.0.0.0 --port 8080 --reload
-```
-
-### Claude Desktop との統合
-
-```bash
-mcp install server.py
 ```
 
 ## API エンドポイント
