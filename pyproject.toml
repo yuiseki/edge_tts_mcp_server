@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edge_tts_mcp_server"
+version = "0.1.0"
+description = "MCPサーバーでedge-ttsを提供するサービス"
+readme = "README.md"
+authors = [
+    {name = "yuiseki", email = "yuiseki@example.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "mcp",
+    "edge-tts",
+    "uvicorn",
+    "fastapi",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "pytest",
+]
+
+[project.scripts]
+edge-tts-mcp = "edge_tts_mcp_server.cli:main"
+
+[tool.setuptools]
+packages = ["edge_tts_mcp_server"]
+package-dir = {"" = "src"}
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
