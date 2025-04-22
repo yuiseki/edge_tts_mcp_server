@@ -43,7 +43,7 @@ def play_mp3_win32(mp3_path):
     Windowsでバックグラウンドで音声を再生する関数
     """
     if platform.system() != "Windows":
-        raise NotImplementedError("Windows専用の関数です")
+        raise NotImplementedError("This function is only for Windows")
 
     try:
         # Short path nameを取得するための関数定義
@@ -93,7 +93,7 @@ def play_mp3_win32(mp3_path):
         
         return True
     except Exception as e:
-        print(f"Windows再生中にエラーが発生しました: {e}")
+        print(f"Error occurred during playback on Windows: {e}")
         return False
 
 # 遅延削除のためのヘルパー関数
@@ -103,9 +103,9 @@ async def _delayed_file_deletion(temp_path, delay_seconds):
     try:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
-            print(f"一時ファイルを削除しました: {temp_path}")
+            print(f"Temporary file deleted: {temp_path}")
     except Exception as e:
-        print(f"一時ファイル削除中にエラーが発生しました: {e}")
+        print(f"Error while deleting temporary file: {e}")
 
 # mpvがインストールされているか確認する関数
 def is_mpv_installed():
@@ -122,13 +122,13 @@ async def serve() -> None:
         return [
             Tool(
                 name=EdgeTTSTools.LIST_VOICES,
-                description="利用可能な音声のリストを取得します",
+                description="Get a list of available voices",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "locale": {
                             "type": "string",
-                            "description": "オプションのロケール（例: ja-JP, en-US）でフィルタリングします",
+                            "description": "Optional locale to filter voices (e.g., ja-JP, en-US)",
                         }
                     },
                     "required": [],
@@ -136,42 +136,42 @@ async def serve() -> None:
             ),
             Tool(
                 name=EdgeTTSTools.TEXT_TO_SPEECH,
-                description="テキストを音声に変換します",
+                description="Convert text to speech",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "text": {
                             "type": "string",
-                            "description": "音声に変換するテキスト",
+                            "description": "Text to convert to speech",
                         },
                         "voice": {
                             "type": "string",
-                            "description": "使用する音声名（デフォルト: ja-JP-NanamiNeural）",
+                            "description": "Voice to use (default: ja-JP-NanamiNeural)",
                             "default": "ja-JP-NanamiNeural",
                         },
                         "rate": {
                             "type": "string",
-                            "description": "音声の速度（例: \"+10%\", \"-10%\"）",
+                            "description": "Speech rate (e.g., \"+10%\", \"-10%\")",
                             "default": "0%",
                         },
                         "volume": {
                             "type": "string",
-                            "description": "音声の音量（例: \"+10%\", \"-10%\"）",
+                            "description": "Speech volume (e.g., \"+10%\", \"-10%\")",
                             "default": "0%",
                         },
                         "pitch": {
                             "type": "string",
-                            "description": "音声の音程（例: \"+10%\", \"-10%\"）",
+                            "description": "Speech pitch (e.g., \"+10%\", \"-10%\")",
                             "default": "0%",
                         },
                         "play_audio": {
                             "type": "boolean",
-                            "description": "Trueの場合は音声を再生します",
+                            "description": "Play the audio if true",
                             "default": True,
                         },
                         "use_default_player": {
                             "type": "boolean",
-                            "description": "Trueの場合はデフォルトのメディアプレーヤーを使用します（Falseの場合はmpvを使用）",
+                            "description": "Use default media player if true (use mpv if false)",
                             "default": False,
                         }
                     },
@@ -224,10 +224,10 @@ async def serve() -> None:
                     # mpvが有効かつインストールされているか確認
                     mpv_available = use_mpv and is_mpv_installed()
                     if use_mpv and not mpv_available:
-                        print("mpvが見つかりませんでした。デフォルトのプレーヤーを使用します。")
+                        print("mpv not found. Using default player instead.")
                     
                     try:
-                        print(f"テキスト「{text}」を音声に変換します...")
+                        print(f"Converting text \"{text}\" to speech...")
                         
                         # コミュニケーター作成
                         communicate = edge_tts.Communicate(text, voice)
@@ -252,13 +252,13 @@ async def serve() -> None:
                         
                         # 音声生成と保存
                         await communicate.save(temp_path)
-                        print(f"音声ファイルを作成しました: {temp_path}")
+                        print(f"Created audio file: {temp_path}")
                         
                         # 音声を再生
                         if play_audio:
                             if mpv_available:
                                 # mpvを使用して再生
-                                print("mpvを使用して音声を再生しています...")
+                                print("Playing audio using mpv...")
                                 mpv_cmd = ["mpv"]
                                 if srt_path:
                                     mpv_cmd.append(f"--sub-file={srt_path}")
@@ -269,11 +269,11 @@ async def serve() -> None:
                                     process.communicate()
                             elif platform.system() == "Windows":
                                 # Windows用のバックグラウンド再生
-                                print("Windowsでバックグラウンド再生を行っています...")
+                                print("Playing audio in background on Windows...")
                                 play_mp3_win32(temp_path)
                             else:
                                 # デフォルトプレーヤーを使用
-                                print("デフォルトプレーヤーで音声を再生しています...")
+                                print("Playing audio with default player...")
                                 if platform.system() == "Windows":
                                     os.system(f'start {temp_path}')
                                 else:
@@ -282,7 +282,7 @@ async def serve() -> None:
                                     elif which("open"):  # macOS
                                         os.system(f'open {temp_path}')
                                     else:
-                                        print("適切なプレーヤーが見つかりませんでした。")
+                                        print("No suitable player found.")
                                 
                                 # 少し待機（デフォルトプレーヤーのみ）
                                 await asyncio.sleep(0.5)
@@ -301,9 +301,9 @@ async def serve() -> None:
                         return [TextContent(type="text", text=json.dumps(result, indent=2))]
                     except Exception as e:
                         # エラーが発生した場合は、別の方法を試す
-                        print(f"最初の方法でエラー発生: {e}")
+                        print(f"Error occurred in the first method: {e}")
                         # 代替方法: 基本的なパラメータのみで試す
-                        print(f"テキスト「{text}」を音声に変換します（基本パラメータのみ）...")
+                        print(f"Converting text \"{text}\" to speech (basic parameters only)...")
                         communicate = edge_tts.Communicate(text, voice)
                         
                         # 一時ファイルに音声を保存
@@ -312,22 +312,22 @@ async def serve() -> None:
                         
                         # 音声生成と保存
                         await communicate.save(temp_path)
-                        print(f"音声ファイルを作成しました: {temp_path}")
+                        print(f"Created audio file: {temp_path}")
                         
                         # 音声を再生
                         if play_audio:
                             if mpv_available:
                                 # mpvを使用して再生
-                                print("mpvを使用して音声を再生しています...")
+                                print("Playing audio using mpv...")
                                 with subprocess.Popen(["mpv", temp_path]) as process:
                                     process.communicate()
                             elif platform.system() == "Windows":
                                 # Windows用のバックグラウンド再生
-                                print("Windowsでバックグラウンド再生を行っています...")
+                                print("Playing audio in background on Windows...")
                                 play_mp3_win32(temp_path)
                             else:
                                 # デフォルトプレーヤーを使用
-                                print("デフォルトプレーヤーで音声を再生しています...")
+                                print("Playing audio with default player...")
                                 if platform.system() == "Windows":
                                     os.system(f'start {temp_path}')
                                 else:
@@ -336,7 +336,7 @@ async def serve() -> None:
                                     elif which("open"):  # macOS
                                         os.system(f'open {temp_path}')
                                     else:
-                                        print("適切なプレーヤーが見つかりませんでした。")
+                                        print("No suitable player found.")
                                 
                                 # 少し待機（デフォルトプレーヤーのみ）
                                 await asyncio.sleep(0.5)
